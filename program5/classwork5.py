@@ -14,7 +14,7 @@ sd_x = df["index"].std()
 
 # df["USINFO"].corr(df["index"]) -> this gives the pearson's correlation coefficent
 
-r = 0.657658
+r = df["USINFO"].corr(df["index"])
 
 theta_1 = r * sd_y / sd_x # slope of the linear regression line 
 

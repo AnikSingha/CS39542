@@ -1,7 +1,7 @@
 """
 Name: Anik Singha
 Email: anik.singha68@myhunter.cuny.edu
-Resources:
+Resources: https://www.skytowner.com/explore/pandas_dataframe_pct_change_method#:
 """
 
 import pandas as pd
@@ -34,8 +34,8 @@ def compute_lin_reg(xes, yes):
     '''
     sd_x = xes.std()
     sd_y = yes.std()
-    r = xes.corr(yes)
-    theta_1 = r * sd_y / sd_x
+    pearsonr = xes.corr(yes)
+    theta_1 = pearsonr * sd_y / sd_x
     theta_0 = yes.mean() - theta_1 * xes.mean()
     return theta_0, theta_1
 
@@ -48,7 +48,8 @@ def predict(xes, theta_0, theta_1):
     The function returns the predicted values of the dependent variable, xes,
     under the linear regression model with y-intercept theta_0 and slope theta_1
     '''
-    return None
+    prediction = (theta_1 * xes) + theta_0
+    return prediction
 
 def mse_loss(y_actual,y_estimate):
     '''
@@ -59,10 +60,8 @@ def mse_loss(y_actual,y_estimate):
     The function returns the mean square error loss function between y_actual and y_estimate
     (e.g. the mean of the squares of the differences).
     '''
-    total = 0
-    for i in range(len(y_actual)):
-        total += (y_actual[i] - y_estimate[i]) ** 2
-    return total / len(y_actual)
+    result = (y_actual - y_estimate) ** 2
+    return sum(result) / len(result)
 
 def rmse_loss(y_actual,y_estimate):
     '''
@@ -85,7 +84,7 @@ def compute_error(y_actual,y_estimate,loss_fnc=mse_loss):
     (all null and non-numeric values have been dropped).
     The result of computing the loss_fnc on the inputs y_actual and y_estimate is returned.
     '''
-    return loss_func(y_actual,y_estimate)
+    return loss_fnc(y_actual,y_estimate)
 
 def compute_ytd(df):
     '''
@@ -95,7 +94,14 @@ def compute_ytd(df):
     the number would be 0 since January is the beginning of the year.
     For July 2022, the number be the difference between USINFO for July and USINFO for January.
     '''
-    return None
+    arr = []
+    values = df.groupby(["year","month","USINFO"]).size().reset_index()
+    for row in df["year"]:
+        val = list(values[values["year"] == row]["USINFO"])[0]
+        arr.append(val)
+    values = pd.Series(arr)
+    return df["USINFO"] - values
+
 
 def compute_year_over_year(df):
     '''
@@ -106,4 +112,16 @@ def compute_year_over_year(df):
     Note: you may find the df.pct_change function useful for computing
     the change from the previous year.
     '''
-    return None
+    return df["USINFO"].pct_change(periods=12) * 100
+
+def main():
+    '''
+    testing
+    '''
+    df = pd.read_csv('fred_info_2022_all.csv')
+    df = parse_datetime(df)
+    df = compute_year_over_year(df)
+    print(df.head(15))
+
+if __name__ == "__main__":
+    main()
