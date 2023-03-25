@@ -120,8 +120,7 @@ def main():
     '''
     df = pd.read_csv('fred_info_2022_all.csv')
     df = parse_datetime(df)
-    df = compute_year_over_year(df)
-    print(df.head(15))
+    print(df.groupby("year")["USINFO"].cumsum())
 
 if __name__ == "__main__":
     main()
